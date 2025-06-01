@@ -1,10 +1,164 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>My GitHub Site</title>
-  </head>
-  <body>
-    <h1>Hello from Mobile!</h1>
-    <p>This website was made using GitHub on a phone 😎</p>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Key System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 10px;
+      font-size: 2rem;
+    }
+    .container {
+      background: white;
+      padding: 20px 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      box-sizing: border-box;
+    }
+    button {
+      cursor: pointer;
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      font-size: 1rem;
+      border-radius: 4px;
+      margin-right: 10px;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    #message {
+      margin-top: 14px;
+      font-size: 0.95rem;
+      min-height: 20px;
+    }
+    #checkpoint-display {
+      margin-bottom: 12px;
+      font-style: italic;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>Key System</h1>
+  <div class="container">
+    <div id="checkpoint-display">Current checkpoint: 1</div>
+
+    <label for="key-input">Enter your key:</label>
+    <input type="text" id="key-input" placeholder="Type key here…" />
+
+    <button id="copy-btn">Copy Link</button>
+    <button id="confirm-btn">Confirm Key</button>
+
+    <div id="message"></div>
+  </div>
+
+  <script>
+    // === INITIAL SETUP ===
+    // Array to store checkpoint keys. keys[0] is checkpoint #1, keys[1] is checkpoint #2, etc.
+    let keys = ["STARTKEY"]; 
+    let currentCheckpoint = 0; // index in "keys" array; 0 means checkpoint #1
+
+    // Update the “Current checkpoint” display at top
+    const checkpointDisplay = document.getElementById("checkpoint-display");
+    function updateCheckpointDisplay() {
+      checkpointDisplay.textContent = "Current checkpoint: " + (currentCheckpoint + 1);
+    }
+    updateCheckpointDisplay();
+
+    const keyInput = document.getElementById("key-input");
+    const copyBtn = document.getElementById("copy-btn");
+    const confirmBtn = document.getElementById("confirm-btn");
+    const messageDiv = document.getElementById("message");
+
+    // === COPY LINK BUTTON ===
+    copyBtn.addEventListener("click", () => {
+      const linkToCopy = "https://idididk.github.io/";
+      // Copy to clipboard
+      navigator.clipboard.writeText(linkToCopy)
+        .then(() => {
+          messageDiv.style.color = "#28a745";
+          messageDiv.textContent = "Copied link: " + linkToCopy;
+        })
+        .catch(err => {
+          messageDiv.style.color = "#dc3545";
+          messageDiv.textContent = "Failed to copy. Please copy manually: " + linkToCopy;
+        });
+    });
+
+    // === FUNCTION TO GENERATE A RANDOM HEX KEY ===
+    function generateRandomKey(length = 16) {
+      const chars = "abcdef0123456789";
+      let result = "";
+      for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    }
+
+    // === CONFIRM KEY BUTTON ===
+    confirmBtn.addEventListener("click", () => {
+      const enteredKey = keyInput.value.trim();
+      if (!enteredKey) {
+        messageDiv.style.color = "#dc3545";
+        messageDiv.textContent = "Please enter a key.";
+        return;
+      }
+
+      if (enteredKey === keys[currentCheckpoint]) {
+        // Correct key for this checkpoint
+        messageDiv.style.color = "#28a745";
+        messageDiv.textContent = `✅ Checkpoint ${currentCheckpoint + 1} complete!`;
+
+        // Move to next checkpoint
+        currentCheckpoint++;
+        // Generate a new random key for the next checkpoint (if we want infinite chain, else stop at some point)
+        const newKey = generateRandomKey(16);
+        keys.push(newKey);
+
+        // Show the newly generated key to user (so they can use it for next checkpoint)
+        setTimeout(() => {
+          messageDiv.innerHTML = `🎉 New key for Checkpoint ${currentCheckpoint + 1}: <strong>${newKey}</strong>`;
+        }, 800);
+
+        keyInput.value = "";
+        updateCheckpointDisplay();
+      } else {
+        // Incorrect key
+        messageDiv.style.color = "#dc3545";
+        messageDiv.textContent = "❌ Incorrect key. Try again.";
+      }
+    });
+  </script>
+</body>
 </html>
